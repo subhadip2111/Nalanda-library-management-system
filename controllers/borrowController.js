@@ -54,10 +54,133 @@ exports.borrowHistory = async (req, res) => {
         },
       },
       { $unwind: "$bookDetails" },
-      { $sort: { borrowDate: -1 } },
+      {
+        $group: {
+          _id: "$user",
+          totalBorrows: { $sum: 1 }, // Count total borrows
+          booksBorrowed: { $addToSet: "$bookDetails._id" }, // Collect unique book IDs
+          history: {
+            $push: {
+              _id: "$_id",
+              borrowDate: "$borrowDate",
+              bookDetails: {
+                _id: "$bookDetails._id",
+                copies: "$bookDetails.copies",
+                title: "$bookDetails.title",
+                author: "$bookDetails.author",
+                ISBN: "$bookDetails.ISBN",
+                publicationDate: "$bookDetails.publicationDate",
+                genre: "$bookDetails.genre",
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          totalBorrows: 1,
+          count: { $size: "$booksBorrowed" }, // Count unique books borrowed
+          history: 1,
+        },
+      },
     ]);
 
-    return res.json(history);
+    // Extract the history array from the result
+    const userHistory = history.length > 0 ? history[0] : null;
+
+    return res.json(userHistory);
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+
+exports.mostBorrowedBooks = async (req, res) => {
+  try {
+    const mostBorrowedBooks = await Borrow.aggregate([
+      {
+        $group: {
+          _id: "$book",
+          borrowCount: { $sum: 1 },
+        },
+      },
+      {
+        $lookup: {
+          from: "books",
+          localField: "_id",
+          foreignField: "_id",
+          as: "bookDetails",
+        },
+      },
+      { $unwind: "$bookDetails" },
+      {
+        $project: {
+          _id: "$bookDetails._id",
+          title: "$bookDetails.title",
+          author: "$bookDetails.author",
+          ISBN: "$bookDetails.ISBN",
+          genre: "$bookDetails.genre",
+          borrowCount: 1,
+        },
+      },
+      { $sort: { borrowCount: -1 } },
+    ]);
+
+    return res.json(mostBorrowedBooks);
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+
+exports.activeMembers = async (req, res) => {
+  try {
+    const activeMembers = await Borrow.aggregate([
+      {
+        $group: {
+          _id: "$user",
+          borrowCount: { $sum: 1 },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "userDetails",
+        },
+      },
+      { $unwind: "$userDetails" },
+      {
+        $project: {
+          _id: "$userDetails._id",
+          username: "$userDetails.username",
+          email: "$userDetails.email",
+          borrowCount: 1,
+        },
+      },
+      { $sort: { borrowCount: -1 } },
+    ]);
+
+    return res.json(activeMembers);
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+
+exports.bookAvailability = async (req, res) => {
+  try {
+    const totalBooks = await Book.countDocuments();
+    const borrowedBooks = await Borrow.countDocuments({ returnDate: null });
+    const availableBooks = totalBooks - borrowedBooks;
+
+    return res.json({
+      totalBooks,
+      borrowedBooks,
+      availableBooks,
+    });
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }

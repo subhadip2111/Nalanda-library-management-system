@@ -1,3 +1,7 @@
+const Book = require("../models/Book");
+
+const Borrow = require("../models/Borrow");
+
 exports.borrowBook = async (req, res) => {
   const userId = req.user._id;
   const { bookId } = req.body;
@@ -12,7 +16,7 @@ exports.borrowBook = async (req, res) => {
     book.copies -= 1;
     await book.save();
 
-   return res.status(201).json(borrow);
+    return res.status(201).json(borrow);
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }
@@ -49,12 +53,12 @@ exports.borrowHistory = async (req, res) => {
           as: "bookDetails",
         },
       },
-      { $unwind: "$bookDetails" }, 
-      { $sort: { borrowDate: -1 } }, 
+      { $unwind: "$bookDetails" },
+      { $sort: { borrowDate: -1 } },
     ]);
 
     return res.json(history);
   } catch (error) {
-    return  res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };

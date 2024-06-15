@@ -61,7 +61,6 @@ exports.registerUser = async (req, res) => {
 };
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
-  // console.log(req.body);
   // Validate email presence
   if (!email) {
     return res.status(400).json({ error: "Email is required" });
@@ -79,7 +78,7 @@ exports.loginUser = async (req, res) => {
     // Check if user exists and compare passwords
     if (user) {
       const passwordsMatch = await bcrypt.compare(password, user.password);
-      console.log(passwordsMatch);
+   
       if (passwordsMatch) {
         // Passwords match, generate JWT token and send response
         return res.json({

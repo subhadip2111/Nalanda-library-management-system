@@ -61,6 +61,14 @@ Replace `your_secret_key` with a secure string for JWT token generation.
 - POST /return/:id: Return a borrowed book.
 - GET /history: Get borrow history of the user.
 
+Reports and Aggregations
+Most Borrowed Books: GET /api/reports/most-borrowed-books
+Generates a report of the most borrowed books.
+Active Members: GET /api/reports/active-members
+Lists the most active members based on borrowing history.
+Book Availability: GET /api/reports/book-availability
+Provides a summary report of book availability (total books, borrowed books, available books).
+
 ### GraphQL API
 
 Access the GraphQL endpoint at http://localhost:4000/graphql for advanced queries and mutations using Apollo Server.

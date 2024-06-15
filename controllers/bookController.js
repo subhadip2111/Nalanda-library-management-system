@@ -30,10 +30,10 @@ exports.addBook = async (req, res) => {
     await book.save();
 
   
-    res.status(201).json(book);
+   return res.status(201).json(book);
   } catch (error) {
     // Handle database errors or other exceptions
-    res.status(400).json({ error: error.message });
+  return  res.status(400).json({ error: error.message });
   }
 };
 exports.updateBook = async (req, res) => {
@@ -48,9 +48,9 @@ exports.updateBook = async (req, res) => {
     if (!book) {
       return res.status(404).json({ error: 'Book not found' });
     }
-    res.json(book);
+   return res.json(book);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
 
@@ -61,9 +61,9 @@ exports.deleteBook = async (req, res) => {
     if (!book) {
       return res.status(404).json({ error: 'Book not found' });
     }
-    res.json({ message: 'Book deleted' });
+    return res.json({ message: 'Book deleted' });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+   return  res.status(400).json({ error: error.message });
   }
 };
 exports.listBooks = async (req, res) => {
@@ -99,14 +99,14 @@ exports.listBooks = async (req, res) => {
     const totalCount = countResult.length > 0 ? countResult[0].totalCount : 0;
 
     // Return response with pagination and books data
-    res.status(200).json({
+   return  res.status(200).json({
       totalCount,
       page: Number(page),
       limit: Number(limit),
       books
     });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+   return res.status(400).json({ error: error.message });
   }
 };
 exports.getBookById = async (req, res) => {
@@ -120,8 +120,8 @@ exports.getBookById = async (req, res) => {
     }
 
     // Return the book details
-    res.json(book);
+  return  res.json(book);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+   return res.status(400).json({ error: error.message });
   }
 };

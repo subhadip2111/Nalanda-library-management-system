@@ -17,20 +17,20 @@ exports.protect = async (req, res, next) => {
     req.user = await User.findById(decoded.id).select('-password');
     next();
   } catch (error) {
-    res.status(401).json({ error: 'Unauthorized. Invalid token.' });
+    return res.status(401).json({ error: 'Unauthorized. Invalid token.' });
   }
 };
 exports.admin = (req, res, next) => {
   if (req.user && req.user.role === 'ADMIN') {
     next();
   } else {
-    res.status(403).json({ error: 'Forbidden. Not authorized as admin.' });
+    return res.status(403).json({ error: 'Forbidden. Not authorized as admin.' });
   }
 };
 exports.member = (req, res, next) => {
   if (req.user && req.user.role === 'MEMBER') {
     next();
   } else {
-    res.status(403).json({ error: 'Forbidden. Not authorized as member.' });
+    return res.status(403).json({ error: 'Forbidden. Not authorized as member.' });
   }
 };

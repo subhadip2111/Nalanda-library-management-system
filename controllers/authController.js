@@ -1,43 +1,54 @@
-const User = require('../models/User');
-const generateToken = require('../utils/generateToken');
-const bcrypt = require('bcryptjs');
-const { emailRegex, passwordLengthRegex } = require('../utils/regex'); // Import regex patterns
+const User = require("../models/User");
+const generateToken = require("../utils/generateToken");
+const bcrypt = require("bcryptjs");
+const { emailRegex, passwordLengthRegex } = require("../utils/regex"); // Import regex patterns
 
 exports.registerUser = async (req, res) => {
   const { name, email, password, role } = req.body;
 
   // Validate email format
   if (!emailRegex.test(email)) {
-    return res.status(400).json({ error: 'Invalid email format' });
+    return res.status(400).json({ error: "Invalid email format" });
   }
 
   // Validate password length
   if (!passwordLengthRegex.test(password)) {
-    return res.status(400).json({ error: 'Password must be at least 8 characters long' });
+    return res
+      .status(400)
+      .json({ error: "Password must be at least 8 characters long" });
   }
-  if(!role){
-    return res.status(400).json({ error: 'Role is required' });
+  if (!role) {
+    return res.status(400).json({ error: "Role is required" });
   }
 
   try {
     // Check if user already exists with the provided email
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return res.status(400).json({ error: 'User already exists' });
+      return res.status(400).json({ error: "User already exists" });
     }
 
     // By default, regular users registering themselves will have 'member' role
-  
+
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 12);
-    if (role && !['ADMIN', 'MEMBER'].includes(role)) {
-      return res.status(400).json({ error: 'Invalid role. Only "ADMIN" or "MEMBER" roles are accepted.' });
+    if (role && !["ADMIN", "MEMBER"].includes(role)) {
+      return res
+        .status(400)
+        .json({
+          error: 'Invalid role. Only "ADMIN" or "MEMBER" roles are accepted.',
+        });
     }
     // Create new user
-    const user = await User.create({ name, email, password: hashedPassword, role: role });
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: role,
+    });
 
     // Respond with user details and token
-    res.status(201).json({
+    return res.status(201).json({
       _id: user._id,
       name: user.name,
       email: user.email,
@@ -45,20 +56,20 @@ exports.registerUser = async (req, res) => {
     });
   } catch (error) {
     // Handle errors
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
-// console.log(req.body);
+  // console.log(req.body);
   // Validate email presence
   if (!email) {
-    return res.status(400).json({ error: 'Email is required' });
-  } 
+    return res.status(400).json({ error: "Email is required" });
+  }
 
   // Validate password presence
   if (!password) {
-    return res.status(400).json({ error: 'Password is required' });
+    return res.status(400).json({ error: "Password is required" });
   }
 
   try {
@@ -71,18 +82,18 @@ exports.loginUser = async (req, res) => {
       console.log(passwordsMatch);
       if (passwordsMatch) {
         // Passwords match, generate JWT token and send response
-        res.json({
+        return res.json({
           _id: user._id,
           name: user.name,
           email: user.email,
           role: user.role,
           token: generateToken(user._id),
-        });}
-       else {
+        });
+      } else {
         // Passwords do not match
-        res.status(401).json({ error: 'Invalid email or password' });
+        return res.status(401).json({ error: "Invalid email or password" });
       }
-    } 
+    }
   } catch (error) {
     console.log(error);
     // Error while finding user or comparing passwords

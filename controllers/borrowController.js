@@ -12,9 +12,9 @@ exports.borrowBook = async (req, res) => {
     book.copies -= 1;
     await book.save();
 
-    res.status(201).json(borrow);
+   return res.status(201).json(borrow);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
 exports.returnBook = async (req, res) => {
@@ -30,9 +30,9 @@ exports.returnBook = async (req, res) => {
     borrow.book.copies += 1;
     await borrow.book.save();
 
-    res.json(borrow);
+    return res.json(borrow);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
 
@@ -53,8 +53,8 @@ exports.borrowHistory = async (req, res) => {
       { $sort: { borrowDate: -1 } }, 
     ]);
 
-    res.json(history);
+    return res.json(history);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return  res.status(400).json({ error: error.message });
   }
 };

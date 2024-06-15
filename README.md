@@ -36,7 +36,7 @@ Create a .env file in the root directory and add:
 
 Replace `your_secret_key` with a secure string for JWT token generation.
 
-4. Start the servers:
+4. Start the servers: npm run dev
 
 
 - Express server will run on http://localhost:4000.
